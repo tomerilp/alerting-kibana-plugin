@@ -1,5 +1,6 @@
 const Chance = require('chance');
 
+
 class AlertingFakes {
   constructor(seed = 'seed') {
     this.chance = new Chance(seed);
@@ -59,8 +60,8 @@ class AlertingFakes {
     return {
       type: 'chime',
       chime: {
-        url: `https://www.${this.chance.word}.com/${this.chance.guid}`,
-      },
+        url: `https://www.${this.chance.word}.com/${this.chance.guid}`
+      }
     };
   }
 
@@ -68,7 +69,7 @@ class AlertingFakes {
     return {
       type: 'slack',
       slack: {
-        url: `https://www.${this.chance.word}.com/${this.chance.guid}`,
+        url: `https://www.${this.chance.word}.com/${this.chance.guid}`
       },
     };
   }
@@ -113,27 +114,18 @@ class AlertingFakes {
           source: `return ${this.chance.bool()}`,
         },
       },
-      actions: new Array(this.chance.natural({ max: 10 }))
-        .fill(null)
-        .map(() => this.randomAction()),
+      actions: new Array(this.chance.natural({ max: 10 })).fill(null).map(() => this.randomAction()),
     };
   }
 
   randomCronSchedule() {
     const timezones = ['America/Los_Angeles', 'America/New_York'];
-    return {
-      period: {
-        expression: `0 ${this.chance.natural({ max: 12 })} * * *`,
-        timezone: this.chance.pickone(timezones),
-      },
-    };
+    return { period: { expression: `0 ${this.chance.natural({ max: 12 })} * * *`, timezone: this.chance.pickone(timezones) } };
   }
 
   randomPeriodSchedule() {
     const units = ['MINUTES', 'HOURS', 'DAYS'];
-    return {
-      period: { interval: this.chance.natural({ max: 50 }), unit: this.chance.pickone(units) },
-    };
+    return { period: { interval: this.chance.natural({ max: 50 }), unit: this.chance.pickone(units) } };
   }
 
   randomSchedule() {
@@ -175,9 +167,7 @@ class AlertingFakes {
       last_update_time: this.chance.timestamp(),
       schedule: this.randomSchedule(),
       inputs: this.randomInputs(),
-      triggers: new Array(this.chance.natural({ max: 10 }))
-        .fill(null)
-        .map(() => this.randomTrigger()),
+      triggers: new Array(this.chance.natural({ max: 10 })).fill(null).map(() => this.randomTrigger()),
     };
   }
 }
