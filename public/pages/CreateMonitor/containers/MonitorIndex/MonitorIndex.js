@@ -22,9 +22,6 @@ import { FormikComboBox } from '../../../../components/FormControls';
 import { validateIndex, hasError, isInvalid } from '../../../../utils/validate';
 import { canAppendWildcard, createReasonableWait, getMatchedOptions } from './utils/helpers';
 
-// if true disable the display of indices names
-const OMIT_INDICES = true;
-
 const CustomOption = ({ option, searchValue, contentClassName }) => {
   const { health, label, index } = option;
   const isAlias = !!index;
@@ -108,10 +105,6 @@ class MonitorIndex extends React.Component {
   }
 
   async handleQueryIndices(rawIndex) {
-    if (OMIT_INDICES) {
-      return [];
-    }
-
     const index = rawIndex.trim();
 
     // Searching for `*:` fails for CCS environments. The search request
@@ -157,10 +150,7 @@ class MonitorIndex extends React.Component {
     try {
       const response = await this.props.httpClient.post('../api/alerting/_aliases', { alias });
       if (response.data.ok) {
-        const indices = OMIT_INDICES ?
-            [...new Set(response.data.resp.map(x => x.alias))].map(x => ({label: x})) :
-        response.data.resp.map(({ alias, index }) => ({ label: alias, index }));
-
+        const indices = response.data.resp.map(({ alias, index }) => ({ label: alias, index }));
         return _.sortBy(indices, 'label');
       }
       return [];
