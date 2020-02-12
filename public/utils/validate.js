@@ -88,7 +88,7 @@ export const validateMonthlyDay = value => {
     return 'Must be a positive integer between 1-31';
 };
 
-export const ILLEGAL_CHARACTERS = ['\\', '/', '?', '"', '<', '>', '|', ',', ' '];
+export const ILLEGAL_CHARACTERS = ['\\', '/', '?', '"', '<', '>', '|', ',', ' ', '*'];
 
 export const validateIndex = options => {
   if (!Array.isArray(options)) return 'Must specify an index';

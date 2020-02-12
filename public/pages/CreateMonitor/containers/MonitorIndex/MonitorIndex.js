@@ -228,7 +228,7 @@ class MonitorIndex extends React.Component {
         fieldProps={{ validate: validateIndex }}
         rowProps={{
           label: 'Index',
-          helpText: 'You can use a * as a wildcard in your index pattern',
+          helpText: 'When possible choose group based indices (*-services)',
           isInvalid,
           error: hasError,
           style: { paddingLeft: '10px' },
