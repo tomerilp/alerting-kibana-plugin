@@ -19,6 +19,18 @@ Monitor {{ctx.monitor.name}} just entered alert status. Please investigate the i
 - Severity: {{ctx.trigger.severity}}
 - Period start: {{ctx.periodStart}}
 - Period end: {{ctx.periodEnd}}
+
+{{#ctx.results}}{{#hits.hits.0._source}}
+   {{#datacenter}}
+- Datacenter: {{datacenter}}
+   {{/datacenter}}
+  {{#service_name}}
+- Service_name: {{service_name}}
+  {{/service_name}}
+  {{#k8scluster}}
+- K8scluster: {{k8scluster}}
+  {{/k8scluster}}
+{{/hits.hits.0._source}}{{/ctx.results}}
 `.trim();
 
 export const FORMIK_INITIAL_ACTION_VALUES = {

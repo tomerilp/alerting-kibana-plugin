@@ -13,8 +13,6 @@
  *   permissions and limitations under the License.
  */
 
-import Webhook from './Webhook/Webhook';
-import CustomWebhook from './CustomWebhook';
 import Mail from './Mail';
 
-export { Webhook, CustomWebhook, Mail };
+export default Mail;
