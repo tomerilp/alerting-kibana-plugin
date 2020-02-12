@@ -22,6 +22,9 @@ import { FormikComboBox } from '../../../../components/FormControls';
 import { validateIndex, hasError, isInvalid } from '../../../../utils/validate';
 import { canAppendWildcard, createReasonableWait, getMatchedOptions } from './utils/helpers';
 
+// if true disable the display of indices names
+const OMIT_INDICES = true;
+
 const CustomOption = ({ option, searchValue, contentClassName }) => {
   const { health, label, index } = option;
   const isAlias = !!index;
@@ -33,12 +36,12 @@ const CustomOption = ({ option, searchValue, contentClassName }) => {
   };
   const color = healthToColor[health];
   return (
-    <EuiHealth color={color}>
+      <EuiHealth color={color}>
       <span className={contentClassName}>
-        <EuiHighlight search={searchValue}>{label}</EuiHighlight>
-        {isAlias && <span>&nbsp;({index})</span>}
-      </span>
-    </EuiHealth>
+      <EuiHighlight search={searchValue}>{label}</EuiHighlight>
+  {isAlias && <span>&nbsp;({index})</span>}
+  </span>
+  </EuiHealth>
   );
 };
 
@@ -105,6 +108,10 @@ class MonitorIndex extends React.Component {
   }
 
   async handleQueryIndices(rawIndex) {
+    if (OMIT_INDICES) {
+      return [];
+    }
+
     const index = rawIndex.trim();
 
     // Searching for `*:` fails for CCS environments. The search request
@@ -150,7 +157,10 @@ class MonitorIndex extends React.Component {
     try {
       const response = await this.props.httpClient.post('../api/alerting/_aliases', { alias });
       if (response.data.ok) {
-        const indices = response.data.resp.map(({ alias, index }) => ({ label: alias, index }));
+        const indices = OMIT_INDICES ?
+            [...new Set(response.data.resp.map(x => x.alias))].map(x => ({label: x})) :
+        response.data.resp.map(({ alias, index }) => ({ label: alias, index }));
+
         return _.sortBy(indices, 'label');
       }
       return [];
@@ -168,10 +178,10 @@ class MonitorIndex extends React.Component {
       createReasonableWait(() => {
         // If the search changed, discard this state
         if (query !== this.lastQuery) {
-          return;
-        }
-        this.setState({ exactMatchedIndices, exactMatchedAliases, isLoading: false });
-      });
+        return;
+      }
+      this.setState({ exactMatchedIndices, exactMatchedAliases, isLoading: false });
+    });
     } else {
       const partialMatchedIndices = await this.handleQueryIndices(`${query}*`);
       const exactMatchedIndices = await this.handleQueryIndices(query);
@@ -180,24 +190,24 @@ class MonitorIndex extends React.Component {
       createReasonableWait(() => {
         // If the search changed, discard this state
         if (query !== this.lastQuery) {
-          return;
-        }
+        return;
+      }
 
-        this.setState({
-          partialMatchedIndices,
-          exactMatchedIndices,
-          partialMatchedAliases,
-          exactMatchedAliases,
-          isLoading: false,
-        });
+      this.setState({
+        partialMatchedIndices,
+        exactMatchedIndices,
+        partialMatchedAliases,
+        exactMatchedAliases,
+        isLoading: false,
       });
+    });
     }
   }
 
   renderOption(option, searchValue, contentClassName) {
     return (
-      <CustomOption option={option} searchValue={searchValue} contentClassName={contentClassName} />
-    );
+        <CustomOption option={option} searchValue={searchValue} contentClassName={contentClassName} />
+  );
   }
 
   render() {
@@ -212,48 +222,48 @@ class MonitorIndex extends React.Component {
     } = this.state;
 
     const { visibleOptions } = getMatchedOptions(
-      allIndices, //all indices
-      partialMatchedIndices,
-      exactMatchedIndices,
-      allAliases,
-      partialMatchedAliases,
-      exactMatchedAliases,
-      false //isIncludingSystemIndices
+        allIndices, //all indices
+        partialMatchedIndices,
+        exactMatchedIndices,
+        allAliases,
+        partialMatchedAliases,
+        exactMatchedAliases,
+        false //isIncludingSystemIndices
     );
 
     return (
-      <FormikComboBox
-        name="index"
-        formRow
-        fieldProps={{ validate: validateIndex }}
-        rowProps={{
-          label: 'Index',
-          helpText: 'You can use a * as a wildcard in your index pattern',
+        <FormikComboBox
+    name="index"
+    formRow
+    fieldProps={{ validate: validateIndex }}
+    rowProps={{
+      label: 'Index',
+          helpText: 'When possible choose group based indices (*-services)',
           isInvalid,
           error: hasError,
           style: { paddingLeft: '10px' },
-        }}
-        inputProps={{
-          placeholder: 'Select indices',
+    }}
+    inputProps={{
+      placeholder: 'Select indices',
           async: true,
           isLoading,
           options: visibleOptions,
           onBlur: (e, field, form) => {
-            form.setFieldTouched('index', true);
-          },
-          onChange: (options, field, form) => {
-            form.setFieldValue('index', options);
-          },
-          onCreateOption: (value, field, form) => {
-            this.onCreateOption(value, field.value, form.setFieldValue);
-          },
-          onSearchChange: this.onSearchChange,
+        form.setFieldTouched('index', true);
+      },
+      onChange: (options, field, form) => {
+        form.setFieldValue('index', options);
+      },
+      onCreateOption: (value, field, form) => {
+        this.onCreateOption(value, field.value, form.setFieldValue);
+      },
+      onSearchChange: this.onSearchChange,
           renderOption: this.renderOption,
           isClearable: true,
           'data-test-subj': 'indicesComboBox',
-        }}
-      />
-    );
+    }}
+    />
+  );
   }
 }
 

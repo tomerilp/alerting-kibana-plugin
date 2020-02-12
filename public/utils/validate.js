@@ -15,12 +15,12 @@
 
 import _ from 'lodash';
 import { ACTIONS_TEMPLATE } from '../pages/CreateTrigger/utils/constants';
-import { INDEX, MAX_THROTTLE_VALUE, WRONG_THROTTLE_WARNING } from '../../utils/constants';
+import { INDEX } from '../../utils/constants';
 
 // TODO: Use a validation framework to clean all of this up or create own.
 
 export const isInvalid = (name, form) =>
-  !!_.get(form.touched, name, false) && !!_.get(form.errors, name, false);
+!!_.get(form.touched, name, false) && !!_.get(form.errors, name, false);
 
 export const hasError = (name, form) => _.get(form.errors, name);
 
@@ -28,22 +28,6 @@ export const validateActionName = trigger => value => {
   if (!value) return 'Required';
   const matches = trigger.actions.filter(action => action.name === value);
   if (matches.length > 1) return 'Action name is already used';
-};
-
-export const isInvalidActionThrottle = action => {
-  if (_.get(action, 'throttle_enabled')) {
-    var value = _.get(action, 'throttle.value');
-    if (!value || value < 1 || value > MAX_THROTTLE_VALUE) {
-      return true;
-    }
-  }
-  return false;
-};
-
-export const validateActionThrottle = action => value => {
-  if (isInvalidActionThrottle(action)) {
-    return WRONG_THROTTLE_WARNING;
-  }
 };
 
 export const required = value => {
@@ -58,7 +42,7 @@ export const validateMonitorName = (httpClient, monitorToEdit) => async value =>
       query: { query: { term: { 'monitor.name.keyword': value } } },
     };
     const response = await httpClient.post('../api/alerting/_search', options);
-    if (_.get(response, 'data.resp.hits.total.value', 0)) {
+    if (_.get(response, 'data.resp.hits.total', 0)) {
       if (!monitorToEdit) throw 'Monitor name is already used';
       if (monitorToEdit && monitorToEdit.name !== value) {
         throw 'Monitor name is already used';
@@ -75,7 +59,7 @@ export const validateTimezone = value => {
   if (!value.length) return 'Required';
 };
 
-export const validatePositiveInteger = value => {
+export const validateInterval = value => {
   if (!Number.isInteger(value) || value < 1) return 'Must be a positive integer';
 };
 
@@ -88,7 +72,7 @@ export const validateMonthlyDay = value => {
     return 'Must be a positive integer between 1-31';
 };
 
-export const ILLEGAL_CHARACTERS = ['\\', '/', '?', '"', '<', '>', '|', ',', ' '];
+export const ILLEGAL_CHARACTERS = ['\\', '/', '?', '"', '<', '>', '|', ',', ' ', '*'];
 
 export const validateIndex = options => {
   if (!Array.isArray(options)) return 'Must specify an index';
