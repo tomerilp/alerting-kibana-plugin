@@ -5,6 +5,7 @@ class AlertingFakes {
   constructor(seed = 'seed') {
     this.chance = new Chance(seed);
 
+    this.randomMailDestination = this.randomMailDestination.bind(this);
     this.randomCustomWebhookDestination = this.randomCustomWebhookDestination.bind(this);
     this.randomChimeDestination = this.randomChimeDestination.bind(this);
     this.randomSlackDestination = this.randomSlackDestination.bind(this);
@@ -22,6 +23,22 @@ class AlertingFakes {
     this.randomMonitor = this.randomMonitor.bind(this);
   }
 
+  randomMailDestination() {
+    return {
+      type: 'mail',
+      mail: {
+        host: `${this.chance.word}`,
+        port: '25',
+        auth: false,
+        starttls: false,
+        username: this.chance.word(),
+        password: this.chance.word(),
+        from: `${this.chance.word()}@${this.chance.word()}.test`,
+        recipients: `${this.chance.word()}@${this.chance.word()}.test`,
+      },
+    };
+  }
+
   randomCustomWebhookDestination() {
     return {
       type: 'custom_webhook',
@@ -35,7 +52,7 @@ class AlertingFakes {
         header_params: {},
         username: this.chance.word(),
         password: this.chance.word(),
-      }
+      },
     };
   }
 
@@ -62,6 +79,7 @@ class AlertingFakes {
       this.randomSlackDestination,
       this.randomChimeDestination,
       this.randomCustomWebhookDestination,
+      this.randomMailDestination,
     ])();
     return {
       name: this.chance.word(),
@@ -97,7 +115,7 @@ class AlertingFakes {
         },
       },
       actions: new Array(this.chance.natural({ max: 10 })).fill(null).map(() => this.randomAction()),
-    };
+  };
   }
 
   randomCronSchedule() {
@@ -150,7 +168,7 @@ class AlertingFakes {
       schedule: this.randomSchedule(),
       inputs: this.randomInputs(),
       triggers: new Array(this.chance.natural({ max: 10 })).fill(null).map(() => this.randomTrigger()),
-    };
+  };
   }
 }
 

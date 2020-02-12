@@ -17,19 +17,19 @@ import { DESTINATION_TYPE } from '../../../utils/constants';
 
 const getCustomWebhookValues = ({ queryParams, headerParams, urlType, ...rest }) => {
   const updatedHeaders = headerParams.reduce(
-    (acc, { key, value }) => ({
-      ...acc,
-      [key]: value,
-    }),
-    {}
-  );
+      (acc, { key, value }) => ({
+        ...acc,
+        [key]: value,
+      }),
+      {}
+);
   const updatedQueryParams = queryParams.reduce(
-    (acc, { key, value }) => ({
-      ...acc,
-      [key]: value,
-    }),
-    {}
-  );
+      (acc, { key, value }) => ({
+        ...acc,
+        [key]: value,
+      }),
+      {}
+);
 
   return {
     ...rest,
@@ -50,6 +50,7 @@ export const formikToDestination = values => {
       destinationValues[type] = getCustomWebhookValues(values[type]);
       break;
     case DESTINATION_TYPE.SLACK:
+    case DESTINATION_TYPE.MAIL:
     case DESTINATION_TYPE.CHIME:
       destinationValues[type] = values[type];
       break;
